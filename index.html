@@ -1,1 +1,177 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kącik Kącików</title>
 
+<style>
+body {
+    margin:0;
+    font-family:sans-serif;
+    background:#fff8f0;
+}
+
+/* 🔐 ekran logowania */
+#loginScreen {
+    position:fixed;
+    top:0;left:0;
+    width:100%;height:100%;
+    background:#fff8f0;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+    z-index:9999;
+}
+
+/* layout */
+.main {
+    display:flex;
+    gap:20px;
+    padding:20px;
+}
+
+.toc {
+    width:250px;
+}
+
+.category {
+    cursor:pointer;
+    margin-bottom:10px;
+    font-weight:bold;
+}
+
+.category ul {
+    display:none;
+    padding-left:15px;
+}
+
+.entry-link {
+    padding:10px;
+    background:white;
+    margin-bottom:5px;
+    cursor:pointer;
+}
+
+.article {
+    background:white;
+    padding:20px;
+    border-radius:10px;
+}
+
+button {
+    padding:10px;
+    border:none;
+    border-radius:8px;
+    background:#fdcbaed6;
+    cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<!-- 🔐 HASŁO -->
+<div id="loginScreen">
+<h2>🔐 Strona prywatna</h2>
+<input type="password" id="passwordInput" placeholder="Hasło">
+<button onclick="checkPassword()">Wejdź</button>
+<p id="error" style="color:red;"></p>
+</div>
+
+<h1 style="text-align:center;">Kącik Kącików</h1>
+
+<div class="main">
+<div class="toc"><ul id="toc"></ul></div>
+
+<div id="centerView">
+<input type="text" id="searchInput" placeholder="Szukaj...">
+<div id="entriesList"></div>
+</div>
+</div>
+
+<script>
+// 🔐 HASŁO
+function checkPassword(){
+    if(document.getElementById("passwordInput").value === "1234"){
+        document.getElementById("loginScreen").style.display = "none";
+    } else {
+        document.getElementById("error").textContent = "Złe hasło!";
+    }
+}
+
+// ✍️ WPISY (TU BĘDZIESZ PISAĆ)
+const entries = [
+{ title:"Kain i Abel", content:"Historia Kaina i Abla...", category:"Wiara" }
+];
+
+const toc = document.getElementById("toc");
+const centerView = document.getElementById("centerView");
+
+function render(){
+    toc.innerHTML="";
+    const categories={};
+
+    entries.forEach(e=>{
+        if(!categories[e.category]) categories[e.category]=[];
+        categories[e.category].push(e);
+    });
+
+    Object.keys(categories).forEach(cat=>{
+        const li=document.createElement("li");
+        li.className="category";
+        li.textContent=cat;
+
+        const ul=document.createElement("ul");
+
+        categories[cat].forEach(entry=>{
+            const li2=document.createElement("li");
+            li2.textContent=entry.title;
+            li2.onclick=()=>showEntry(entry.title);
+            ul.appendChild(li2);
+        });
+
+        li.onclick=()=>{
+            ul.style.display=ul.style.display==="block"?"none":"block";
+        };
+
+        li.appendChild(ul);
+        toc.appendChild(li);
+    });
+}
+
+function showEntry(title){
+    const e=entries.find(x=>x.title===title);
+
+    centerView.innerHTML=`
+    <div class="article">
+    <button onclick="location.reload()">← Wróć</button>
+    <h2>${e.title}</h2>
+    <p>${e.content}</p>
+    </div>`;
+}
+
+function search(){
+    const val=document.getElementById("searchInput").value.toLowerCase();
+    const list=document.getElementById("entriesList");
+    list.innerHTML="";
+
+    entries.filter(e=>e.title.toLowerCase().includes(val))
+    .forEach(e=>{
+        const div=document.createElement("div");
+        div.className="entry-link";
+        div.textContent=e.title;
+        div.onclick=()=>showEntry(e.title);
+        list.appendChild(div);
+    });
+}
+
+document.getElementById("searchInput").addEventListener("input",search);
+
+render();
+search();
+</script>
+
+</body>
+</html>
